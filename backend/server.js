@@ -52,45 +52,67 @@ app.post('/register', async (req, res) => {
     await user.save();
     res.status(201).send('User created');
   } catch (error) {
-    console.log("REGISTRATION ERROR:", error);
+    console.error("REGISTRATION ERROR:", error);
     res.status(500).send(`Error creating user: ${error.message}`);
   }
 });
 
 app.post('/login', async (req, res) => {
-  const user = await User.findOne({ username: req.body.username });
-  if (!user) return res.status(400).send('User not found');
-  if (await bcrypt.compare(req.body.password, user.password)) {
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
-    res.json({ token });
-  } else {
-    res.status(401).send('Incorrect password');
+  try {
+    const user = await User.findOne({ username: req.body.username });
+    if (!user) return res.status(400).send('User not found');
+    if (await bcrypt.compare(req.body.password, user.password)) {
+      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+      res.json({ token });
+    } else {
+      res.status(401).send('Incorrect password');
+    }
+  } catch (error) {
+    console.error("LOGIN ERROR:", error);
+    res.status(500).send(`Error logging in: ${error.message}`);
   }
 });
 
 app.get('/todos', authenticateToken, async (req, res) => {
-  const todos = await Todo.find({ userId: req.user.userId });
-  res.json(todos);
+  try {
+    const todos = await Todo.find({ userId: req.user.userId });
+    res.json(todos);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 app.post('/todos', authenticateToken, async (req, res) => {
-  const todo = new Todo({ userId: req.user.userId, text: req.body.text });
-  await todo.save();
-  res.json(todo);
+  try {
+    const todo = new Todo({ userId: req.user.userId, text: req.body.text });
+    await todo.save();
+    res.json(todo);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 app.put('/todos/:id', authenticateToken, async (req, res) => {
-  const todo = await Todo.findOneAndUpdate(
-    { _id: req.params.id, userId: req.user.userId }, 
-    { text: req.body.text }, 
-    { new: true }
-  );
-  res.json(todo);
+  try {
+    const todo = await Todo.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.userId }, 
+      { text: req.body.text }, 
+      { new: true }
+    );
+    res.json(todo);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 app.delete('/todos/:id', authenticateToken, async (req, res) => {
-  await Todo.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
-  res.sendStatus(204);
+  try {
+    const result = await Todo.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
+    if(!result) return res.status(404).send('Todo not found');
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
