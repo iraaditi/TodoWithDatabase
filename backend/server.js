@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: __dirname + '/.env' });
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: 'https://todo-with-database-psi.vercel.app' }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
