@@ -23,7 +23,8 @@ export default function Auth({ onAuth }) {
       alert('Registration successful! Please login.');
       setIsLogin(true);
     } else {
-      alert('Error authenticating');
+      const errorText = await response.text();
+      alert(`Error authenticating: ${errorText}`);
     }
   };
 
