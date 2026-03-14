@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function TodoList({ token }) {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
@@ -7,7 +9,7 @@ export default function TodoList({ token }) {
   const [editText, setEditText] = useState('');
 
   const fetchTodos = async () => {
-    const res = await fetch('http://localhost:5000/todos', {
+    const res = await fetch(`${API_URL}/todos`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) setTodos(await res.json());
@@ -18,7 +20,7 @@ export default function TodoList({ token }) {
   const addTodo = async (e) => {
     e.preventDefault();
     if (!newTodo.trim()) return;
-    await fetch('http://localhost:5000/todos', {
+    await fetch(`${API_URL}/todos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ text: newTodo })
@@ -28,7 +30,7 @@ export default function TodoList({ token }) {
   };
 
   const deleteTodo = async (id) => {
-    await fetch(`http://localhost:5000/todos/${id}`, {
+    await fetch(`${API_URL}/todos/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -36,7 +38,7 @@ export default function TodoList({ token }) {
   };
 
   const updateTodo = async (id) => {
-    await fetch(`http://localhost:5000/todos/${id}`, {
+    await fetch(`${API_URL}/todos/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ text: editText })
