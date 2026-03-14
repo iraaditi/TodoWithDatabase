@@ -45,7 +45,7 @@ app.post('/register', async (req, res) => {
     res.status(201).send('User created');
   } catch (error) {
     console.log("REGISTRATION ERROR:", error);
-    res.status(500).send('Error creating user');
+    res.status(500).send(`Error creating user: ${error.message}`);
   }
 });
 
